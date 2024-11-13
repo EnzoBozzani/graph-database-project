@@ -71,7 +71,7 @@ _Seções_:
 
 -   IS_REQ_OF (Subj-[:IS_REQ_OF]->Course)
 
--   MENTORED_BY (Student-[:METORED_BY]->Professor)
+-   MENTORED_BY (Student-[:MENTORED_BY]->Professor)
 
 -   TAKES (Student-[:TAKES]->Subj)
 
@@ -83,6 +83,8 @@ _Seções_:
 -   TEACHES (Professor-[:TEACHES]->Subj)
     -   year: Integer
     -   semester: Integer
+    
+- HEADS (Professor-[:HEADS]->Department)
 
 ### Pré-requisitos
 
