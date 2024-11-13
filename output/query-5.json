@@ -1,0 +1,9 @@
+{
+	"group_id": "CC1111111",
+	"prof_name": "Ana Paula",
+	"students": [
+		{ "_id": "66fb01f8f1f85515b0866f0a", "id": "100000001", "name": "Ronaldo Fenômeno", "course_id": "CC" },
+		{ "_id": "66fb01f8f1f85515b0866f0b", "id": "100000002", "name": "Ronaldinho Gaúcho", "course_id": "CC" },
+		{ "_id": "66fb01f8f1f85515b0866f0c", "id": "100000003", "name": "Romário", "course_id": "CC" }
+	]
+}
