@@ -1,9 +1,5 @@
-{
-	"group_id": "CC1111111",
-	"prof_name": "Ana Paula",
-	"students": [
-		{ "_id": "66fb01f8f1f85515b0866f0a", "id": "100000001", "name": "Ronaldo Fenômeno", "course_id": "CC" },
-		{ "_id": "66fb01f8f1f85515b0866f0b", "id": "100000002", "name": "Ronaldinho Gaúcho", "course_id": "CC" },
-		{ "_id": "66fb01f8f1f85515b0866f0c", "id": "100000003", "name": "Romário", "course_id": "CC" }
-	]
-}
+[
+	{ "student_id": "100000001", "student_name": "Ronaldo Fenômeno", "professor_name": "Ana Paula" },
+	{ "student_id": "100000002", "student_name": "Ronaldinho Gaúcho", "professor_name": "Ana Paula" },
+	{ "student_id": "100000003", "student_name": "Romário", "professor_name": "Ana Paula" }
+]

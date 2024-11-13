@@ -1,1 +1,26 @@
-[]
+[
+	{
+		"professor_id": "P002",
+		"professor_name": "Carlos Alberto",
+		"department_name": "Ciência da Computação",
+		"department_budget": 100000.0
+	},
+	{
+		"professor_id": "P008",
+		"professor_name": "Rafael Costa",
+		"department_name": "Engenharia de Produção",
+		"department_budget": 100000.0
+	},
+	{
+		"professor_id": "P012",
+		"professor_name": "Eduardo Santos",
+		"department_name": "Matemática",
+		"department_budget": 80000.0
+	},
+	{
+		"professor_id": "P020",
+		"professor_name": "Thiago Carvalho",
+		"department_name": "Engenharia Civil",
+		"department_budget": 75000.0
+	}
+]

@@ -9,126 +9,80 @@ _Desenvolvido por:_
 
 _Seções_:
 
--   [Collections](#collections)
+-   [Node Labels](#node-labels)
+-   [Relacionamentos](#relacionamentos)
 -   [Pré-requisitos](#pré-requisitos)
 -   [Instalação](#instalação)
 -   [Execução](#execução)
 
-### Collections
+### Node Labels
 
--   course
+-   Student
 
-```
-{
-    _id: ObjectId(),
-    id: String,
-    title: String
-}
-```
+    -   Atributos:
+        -   course_id: String
+        -   name: String
+        -   id: String
+        -   group_id: String | null
+    -   Relacionamentos:
+        -   TAKES
+        -   MENTORED_BY
+        -   GRADUATED
 
--   department
+-   Department
 
-```
-{
-    _id: ObjectId(),
-    dept_name: String,
-    budget: Double,
-    boss_id: String
-}
-```
+    -   Atributos:
+        -   dept_name: String
+        -   boss_id: String
+        -   budget: Float
 
--   graduate
+-   Professor
 
-```
-{
-    _id: ObjectId(),
-    course_id: String,
-    student_id: String,
-    year: Integer,
-    semester: Integer
-}
-```
+    -   Atributos:
+        -   dept_name: String
+        -   name: String
+        -   id: String
+        -   salary: Float
+    -   Relacionamentos:
+        -   TEACHES
+        -   HEADS
 
--   professor
+-   Subj
 
-```
-{
-    _id: ObjectId(),
-    id: String,
-    name: String,
-    dept_name: String,
-    salary: Double
-}
-```
+    -   Atributos:
+        -   dept_name: String
+        -   title: String
+        -   id: String
+    -   Relacionamentos:
+        -   IS_REQ_OF
 
--   req
+-   Course
 
-```
-{
-    _id: ObjectId(),
-    course_id: String,
-    subj_id: String
-}
-```
+    -   Atributos:
+        -   title: String
+        -   id: String
 
--   student
+### Relacionamentos
 
-```
-{
-    _id: ObjectId(),
-    id: String,
-    name: String,
-    course_id: String,
-    group_id: String
-}
-```
+-   GRADUATED (Student-[:GRADUATED]->Course)
 
--   subj
+    -   year: Integer
+    -   semester: Integer
 
-```
-{
-    _id: ObjectId(),
-    id: String,
-    title: String,
-    dept_name: String
-}
-```
+-   IS_REQ_OF (Subj-[:IS_REQ_OF]->Course)
 
--   takes
+-   MENTORED_BY (Student-[:METORED_BY]->Professor)
 
-```
-{
-    _id: ObjectId(),
-    student_id: String,
-    subj_id: String,
-    year: Integer,
-    semester: Integer,
-    grade: Double,
-    subjroom: String
-}
-```
+-   TAKES (Student-[:TAKES]->Subj)
 
--   tcc_group
+    -   subjroom: String
+    -   year: Integer
+    -   grade: Float
+    -   semester: Integer
 
-```
-{
-    _id: ObjectId(),
-    id: String,
-    professor_id: String
-}
-```
-
--   teaches
-
-```
-{
-    _id: ObjectId(),
-    subj_id: String,
-    professor_id: String,
-    year: Integer,
-    semester: Integer
-}
-```
+-   TEACHES (Professor-[:TEACHES]->Subj)
+    -   year: Integer
+    -   semester: Integer
 
 ### Pré-requisitos
 

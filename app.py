@@ -20,7 +20,7 @@ neo4j_driver = GraphDatabase.driver(os.environ['NEO4J_URL'], auth=(os.environ['N
 def show_tables() -> list[str]:
     print("Buscando nomes das tabelas no banco relacional....")
     with postgres_conn.cursor() as db:
-        db.execute("SHOW TABLES;")
+        db.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
         res = db.fetchall()
         return [table[0] for table in res]
 
@@ -57,37 +57,118 @@ def transfer_data():
 
     print("\n-----------------------------------------------------------------------------\n")
 
+    join_tables = ['takes', 'tcc_group', 'teaches', 'req', 'graduate']
+
     for table in tables:
-        cols = select_columns(table)
-        rows = select_all(table)
+        if table not in join_tables:
+            cols = select_columns(table)
+            rows = select_all(table)
 
-        with neo4j_driver.session() as session:
-            # Criando nós para cada registro da tabela
-            for row in rows:
-                # Convertendo valores Decimal para float, se necessário
-                node_data = {cols[i]: (float(value) if isinstance(value, Decimal) else value) for i, value in enumerate(row)}
-
-                # Identificar chaves estrangeiras e criar relacionamentos, se aplicável
-                if table == 'takes':
-                    # Defina aqui as chaves estrangeiras e relacionamento para 'takes' como exemplo
-                    fk1 = 'student_id'  # chave estrangeira 1
-                    fk2 = 'subj_id'  # chave estrangeira 2
-                    
-                    # Criar um relacionamento entre o estudante e a disciplina
-                    rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
-                    query = f"""
-                    MATCH (s:Student {{id: $student_id}}), (sub:Subj {{id: $subj_id}})
-                    CREATE (s)-[:TAKES {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(sub)
-                    """
-                    session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data})
-                else:
-                    # Caso contrário, cria o nó normalmente
+            with neo4j_driver.session() as session:
+                for row in rows:
+                    node_data = {cols[i]: (float(value) if isinstance(value, Decimal) else value) for i, value in enumerate(row)}
                     query = f"CREATE (n:{table.capitalize()} {{ {', '.join([f'{col}: ${col}' for col in cols])} }})"
                     session.run(query, **node_data)
 
             print(f"Nós para a tabela '{table}' inseridos no Neo4j.")
 
-        print("\n-----------------------------------------------------------------------------\n")
+            print("\n-----------------------------------------------------------------------------\n")
+
+    dept_cols = select_columns('department')
+    dept_rows = select_all('department')
+
+    with neo4j_driver.session() as session:
+        for row in dept_rows:
+            node_data = {dept_cols[i]: (float(value) if isinstance(value, Decimal) else value) for i, value in enumerate(row)}
+            fk1 = "boss_id"
+            fk2 = "dept_name"
+
+            query = f"""
+            MATCH (p:Professor {{id: $boss_id}}), (d:Department {{dept_name: $dept_name}}) 
+            CREATE (p)-[:HEADS]->(d)"""
+            session.run(query, **{**{fk1: row[dept_cols.index(fk1)], fk2: row[dept_cols.index(fk2)]}})
+    
+    print(f"Relacionamentos 'HEADS' inserido no Neo4j.")
+
+    print("\n-----------------------------------------------------------------------------\n")
+
+    for table in tables:
+        if table in join_tables: 
+            cols = select_columns(table)
+            rows = select_all(table)
+
+            with neo4j_driver.session() as session:
+                for row in rows:
+                    node_data = {cols[i]: (float(value) if isinstance(value, Decimal) else value) for i, value in enumerate(row)}
+
+                    relationship = ""
+   
+                    if table == 'takes':
+                        fk1 = 'student_id'
+                        fk2 = 'subj_id'
+                        relationship = "TAKES"
+
+                        rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
+                        query = f"""
+                        MATCH (s:Student {{id: $student_id}}), (sub:Subj {{id: $subj_id}})
+                        CREATE (s)-[:TAKES {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(sub)
+                        """
+                        session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data})
+                    elif table == 'tcc_group':
+                        fk1 = 'id'
+                        fk2 = 'professor_id'
+                        relationship = "MENTORED_BY"
+
+                        rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
+                        query = f"""
+                        MATCH (s:Student {{group_id: $id}}), (prof:Professor {{id: $professor_id}})
+                        CREATE (s)-[:MENTORED_BY {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(prof)
+                        """
+                        session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data})
+                    elif table == 'teaches':
+                        fk1 = 'subj_id'
+                        fk2 = 'professor_id'
+                        relationship = "TEACHES"
+
+                        rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
+                        query = f"""
+                        MATCH (prof:Professor {{id: $professor_id}}), (sub:Subj {{id: $subj_id}})
+                        CREATE (prof)-[:TEACHES {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(sub)
+                        """
+                        session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data})
+                    elif table == 'req':
+                        fk1 = 'subj_id'
+                        fk2 = 'course_id'
+                        relationship = "IS_REQ_OF"
+
+                        rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
+                        query = f"""
+                        MATCH (sub:Subj {{id: $subj_id}}), (c:Course {{id: $course_id}})
+                        CREATE (sub)-[:IS_REQ_OF {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(c)
+                        """
+                        session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data})
+                    elif table == 'graduate':
+                        fk1 = 'student_id'
+                        fk2 = 'course_id'
+                        relationship = "GRADUATED"
+
+                        rel_data = {k: v for k, v in node_data.items() if k not in [fk1, fk2]}
+                        query = f"""
+                        MATCH (s:Student {{id: $student_id}}), (c:Course {{id: $course_id}})
+                        CREATE (s)-[:GRADUATED {{ {', '.join([f'{k}: ${k}' for k in rel_data])} }}]->(c)
+                        """
+                        session.run(query, **{**{fk1: row[cols.index(fk1)], fk2: row[cols.index(fk2)]}, **rel_data}) 
+
+            print(f"Relacionamentos '{relationship}' inserido no Neo4j.")
+
+            print("\n-----------------------------------------------------------------------------\n")
+
+    
+    
+    
+    # print(f"Relacionamentos 'HEADS' inserido no Neo4j.")
+
+    # print("\n-----------------------------------------------------------------------------\n")
     
     print("Transferência concluída!")
 

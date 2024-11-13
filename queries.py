@@ -13,9 +13,9 @@ neo4j_driver = GraphDatabase.driver(os.environ['NEO4J_URL'], auth=(os.environ['N
 def query_student_academic_record():
     print("Buscando o histórico escolar do aluno de RA 100000001")
     query = """
-    MATCH (s:Student {id: '100000001'})-[:TAKES]->(sub:Subj)
+    MATCH (s:Student {id: '100000001'})-[t:TAKES]->(sub:Subj)
     RETURN s.id AS student_id, sub.id AS subj_id, sub.title AS subject_title,
-           sub.semester AS semester, sub.year AS year, sub.grade AS grade
+           t.semester AS semester, t.year AS year, t.grade AS grade
     """
 
     with neo4j_driver.session() as session:
@@ -28,9 +28,9 @@ def query_student_academic_record():
 def query_professor_academic_record():
     print("Buscando o histórico de disciplinas ministradas pelo professor de ID P005")
     query = """
-    MATCH (p:Professor {id: 'P005'})-[:TEACHES]->(sub:Subj)
+    MATCH (p:Professor {id: 'P005'})-[t:TEACHES]->(sub:Subj)
     RETURN p.id AS professor_id, sub.id AS subj_id, sub.title AS subject_title, 
-           sub.semester AS semester, sub.year AS year
+           t.semester AS semester, t.year AS year
     """
 
     with neo4j_driver.session() as session:
@@ -43,7 +43,7 @@ def query_professor_academic_record():
 def query_graduated_students():
     print("Buscando os alunos que se formaram no segundo semestre de 2018")
     query = """
-    MATCH (s:Student)-[:GRADUATED_FROM]->(c:Course {semester: 2, year: 2018})
+    MATCH (s:Student)-[:GRADUATED {semester: 2, year: 2018}]->(c:Course)
     RETURN s.id AS student_id, s.name AS name
     """
 
@@ -71,13 +71,13 @@ def query_chiefs_of_departments():
 def query_tcc_group():
     print("Buscando os alunos que formaram o grupo de TCC de ID CC1111111")
     query = """
-    MATCH (g:TccGroup {id: 'CC1111111'})<-[:PART_OF]-(s:Student), (g)-[:MENTORED_BY]->(p:Professor)
-    RETURN g.id AS group_id, p.name AS professor_name, collect(s.name) AS students
+    MATCH (s:Student {group_id: 'CC1111111'})-[:MENTORED_BY]->(p:Professor)
+    RETURN s.id AS student_id, s.name AS student_name, p.name AS professor_name
     """
 
     with neo4j_driver.session() as session:
         result = session.run(query)
-        records = result.single().data()
+        records = [record.data() for record in result]
 
     with open('./output/query-5.json', 'w') as f:
         json.dump(records, f, ensure_ascii=False)
