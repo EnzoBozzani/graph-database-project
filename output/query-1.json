@@ -1,1 +1,50 @@
-[]
+[
+	{
+		"student_id": "100000001",
+		"subj_id": "CA2211",
+		"subject_title": "Geometria Analítica",
+		"semester": null,
+		"year": null,
+		"grade": null
+	},
+	{
+		"student_id": "100000001",
+		"subj_id": "CA4312",
+		"subject_title": "Álgebra Linear",
+		"semester": null,
+		"year": null,
+		"grade": null
+	},
+	{
+		"student_id": "100000001",
+		"subj_id": "CA4322",
+		"subject_title": "Cálculo Numérico",
+		"semester": null,
+		"year": null,
+		"grade": null
+	},
+	{
+		"student_id": "100000001",
+		"subj_id": "CC7711",
+		"subject_title": "Inteligência Artificial e Robótica",
+		"semester": null,
+		"year": null,
+		"grade": null
+	},
+	{
+		"student_id": "100000001",
+		"subj_id": "CCD110",
+		"subject_title": "Banco de Dados",
+		"semester": null,
+		"year": null,
+		"grade": null
+	},
+	{
+		"student_id": "100000001",
+		"subj_id": "CCP130",
+		"subject_title": "Desenvolvimento de Algoritmos",
+		"semester": null,
+		"year": null,
+		"grade": null
+	}
+]
